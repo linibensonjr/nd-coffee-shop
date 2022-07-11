@@ -17,7 +17,7 @@ CORS(app)
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 !! Running this funciton will add one
 '''
-# db_drop_and_create_all()
+db_drop_and_create_all()
 
 # ROUTES
 '''
@@ -28,7 +28,17 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
-
+@app.route('/drinks')
+def get_drinks():
+    drinks = Drink.query.all()
+    drink = [drink.short() for drink in drinks]
+    # for i in drinks:
+    #     drink['title'] = i.title
+    print((drink))
+    return jsonify ({
+        "success": True,
+        "drinks": drink
+    })
 
 '''
 @TODO implement endpoint
@@ -38,6 +48,15 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@requires_auth(permission='get:drink-detail')
+@app.route('/drinks-detail')
+def get_drinks_details():
+    drinks = Drink.query.all()
+    drink = [drink.long() for drink in drinks]
+    return jsonify ({
+        'success': True,
+        'drinks': drink
+    })
 
 
 '''
@@ -49,6 +68,11 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks', methods=['POST'])
+def add_drinks():
+    return jsonify ({
+        'success': True,
+    })
 
 
 '''
@@ -62,6 +86,11 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<int:id>', methods=['PATCH'])
+def edit_drinks():
+    return jsonify ({
+        'success': True,
+    })
 
 
 '''
@@ -74,6 +103,11 @@ CORS(app)
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<int:id>', methods=['DELETE'])
+def delete_drinks():
+    return jsonify ({
+        'success': True,
+    })
 
 
 # Error Handling
