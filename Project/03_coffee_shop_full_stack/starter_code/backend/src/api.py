@@ -30,14 +30,14 @@ db_drop_and_create_all()
 '''
 @app.route('/drinks')
 def get_drinks():
-    drinks = Drink.query.all()
-    drink = [drink.short() for drink in drinks]
+    drinks_selection = Drink.query.all()
+    drinks = [drink.short() for drink in drinks_selection]
     # for i in drinks:
     #     drink['title'] = i.title
-    print((drink))
+    
     return jsonify ({
         "success": True,
-        "drinks": drink
+        "drinks": drinks
     })
 
 '''
@@ -48,14 +48,14 @@ def get_drinks():
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
-@requires_auth(permission='get:drink-detail')
+@requires_auth('get:drink-detail')
 @app.route('/drinks-detail')
 def get_drinks_details():
-    drinks = Drink.query.all()
-    drink = [drink.long() for drink in drinks]
+    drinks_selection = Drink.query.all()
+    drinks = [drink.long() for drink in drinks_selection]
     return jsonify ({
-        'success': True,
-        'drinks': drink
+        "success": True,
+        "drinks": drinks
     })
 
 
@@ -68,12 +68,27 @@ def get_drinks_details():
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
+@requires_auth('post:drinks')
 @app.route('/drinks', methods=['POST'])
 def add_drinks():
-    return jsonify ({
-        'success': True,
-    })
-
+    body = request.get_json()
+    title = body.get('title', None)
+    recipe = body.get('recipe', None)
+    try:
+        drinks = Drink(title=title, recipe=recipe)
+        drinks.insert()
+        drinks_selection = Drink.query.order_by(Drink.id.desc()).first()
+        print(drinks_selection)
+        #drinks = [drink.long() for drink in drinks_selection]
+        return jsonify ({
+            "success": True,
+            "drinks": drinks_selection,
+        })
+    except:
+         return jsonify ({
+            "success": False,
+            # "drinks": drinks_selection,
+        })
 
 '''
 @TODO implement endpoint
@@ -87,7 +102,7 @@ def add_drinks():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<int:id>', methods=['PATCH'])
-def edit_drinks():
+def edit_drinks(id):
     return jsonify ({
         'success': True,
     })
@@ -104,7 +119,7 @@ def edit_drinks():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks/<int:id>', methods=['DELETE'])
-def delete_drinks():
+def delete_drinks(id):
     return jsonify ({
         'success': True,
     })
